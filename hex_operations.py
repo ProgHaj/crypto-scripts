@@ -33,3 +33,13 @@ def xor(s1, s2):
         h3 += b"%x" % (byte1 ^ byte2)
 
     return h3
+
+
+
+def bytes2bits(h1):
+    """Prints the bits of a bytestring bytes"""
+    bits = ""
+    for byte in h1:
+        bits += "{0:b}".format(byte).rjust(8, '0')
+
+    print(bits)
