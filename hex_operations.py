@@ -27,6 +27,14 @@ def xor(s1, s2):
     Challenge 2 of Set1 cryptopals"""
     h1 = binascii.a2b_hex(s1)
     h2 = binascii.a2b_hex(s2)
+    return xor_hex(h1,h2)
+
+
+def xor_hex(h1,h2):
+    """ Takes hexbytes h1 and h2
+
+    Returns a xor'd hexadecimal represented bytes.
+    """
 
     h3 = bytes()
     for byte1, byte2 in zip(h1, h2):
