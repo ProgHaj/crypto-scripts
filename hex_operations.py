@@ -44,10 +44,14 @@ def xor_hex(h1,h2):
 
 
 
-def bytes2bits(h1):
-    """Prints the bits of a bytestring bytes"""
+def bytes2bitsstring(h1):
+    """Returns a string containing bits of a bytestring bytes"""
     bits = ""
     for byte in h1:
         bits += "{0:b}".format(byte).rjust(8, '0')
 
-    print(bits)
+    return bits
+
+def int2hexbyte(i):
+    temp_hex = "%x" % i
+    return binascii.a2b_hex(temp_hex.rjust(len(temp_hex) + (len(temp_hex) % 2),'0'))
