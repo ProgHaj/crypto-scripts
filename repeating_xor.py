@@ -4,8 +4,9 @@ import argparse
 
 def repeat_xor_on_file(file_path, xor_string):
     with open(file_path, 'r') as file_name:
-        read_file = read(file_name)
-        ho.xor_string(file_path, xor_string)
+        read_file = file_name.read()
+        print(read_file)
+        return ho.xor_string(read_file, xor_string)
 
 
 def setup_arg_parse():
@@ -32,7 +33,8 @@ def setup_arg_parse():
 if __name__ == '__main__':
     args = setup_arg_parse()
     if args.f:
-        get_best_sequence_xor_char(args.get(to_be_xored), args.get(xor_val))
-        repeat_xor_on_file(args.to_be_xored, args.xor_val)
+        xor = repeat_xor_on_file(args.to_be_xored, args.xor_val)
     else:
-        print(ho.xor_string(args.to_be_xored, args.xor_val))
+        xor = ho.xor_string(args.to_be_xored, args.xor_val)
+
+    print(xor)
