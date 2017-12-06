@@ -19,13 +19,21 @@ def hex_b64(s1):
     h1 = binascii.a2b_hex(s1)
     return binascii.b2a_base64(h1).strip()
 
-
 def xor(s1, s2):
     """ Takes string s1 and s2 which are strings containing hexadecimals.
     Returns a xor'd hexadecimal represented bytes.
 
     Challenge 2 of Set1 cryptopals"""
-    h1 = s1.encohe()
+    h1 = binascii.a2b_hex(s1)
+    h2 = binascii.a2b_hex(s2)
+    return xor_hex(h1,h2)
+
+
+def xor_string(s1, s2):
+    """ Takes string s1 and s2 which are strings containing characters.
+    Returns a xor'd hexadecimal represented bytes.
+    """
+    h1 = s1.encode()
     h2 = s2.encode()
     return xor_hex(h1,h2)
 
