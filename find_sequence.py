@@ -54,12 +54,27 @@ def rank_list(ranking_dict):
         val_o = value.get(ord('o')) or 0
         val_i = value.get(ord('i')) or 0
         val_n = value.get(ord('n')) or 0
+
+        val_s = value.get(ord('s')) or 0
+        val_h = value.get(ord('h')) or 0
+        val_r = value.get(ord('r')) or 0
+        val_d = value.get(ord('d')) or 0
+        val_l = value.get(ord('l')) or 0
+        val_u = value.get(ord('u')) or 0
+
         values = [[val_e, 0.12],
                   [val_t, 0.91],
                   [val_a, 0.82],
                   [val_o, 0.75],
                   [val_i, 0.7],
-                  [val_n, 0.67]]
+                  [val_n, 0.67],
+
+                  [val_s, 0.63],
+                  [val_h, 0.61],
+                  [val_r, 0.6],
+                  [val_d, 0.43],
+                  [val_l, 0.4],
+                  [val_u, 0.28]]
 
         for val in values:
             score += val[0] * val[1]
