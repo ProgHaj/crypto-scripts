@@ -1,6 +1,7 @@
 import argparse
 import hex_operations as ho
 import repeating_xor
+import re
 
 def setup():
     parser = argparse.ArgumentParser(description='This program will break'
@@ -37,7 +38,7 @@ def hamming_distance(str1, str2):
 
 def steps(args):
     with open(args.file, 'r') as seq_file:
-        red_file = seq_file.read()
+        red_file = seq_file.read().strip()
 
         keysize = args.KEYSIZE
         list_of_distances = []
@@ -55,13 +56,33 @@ def steps(args):
 
         sorted_list = sorted(list_of_distances, key=lambda x: x[0])
         # makes list_of_distances[0] be the smallest distance-key pair, and [1] the
-        # next best etc.
+        # next best etc. the list contains entries with [distance, key]
 
-        print(sorted_list[0:10])
+        text_blocks = break_text_into_blocks(red_file, list_of_distances[0][1])
+        print(transpose_blocks(text_blocks))
 
 
 
 
+
+def break_text_into_blocks(text, keysize):
+    return re.findall(".{1,%s}" % keysize, text)
+
+def transpose_blocks(blocks):
+    transposed_blocks = []
+
+    if len(blocks) == 0:
+        raise Exception("Blocks need to have at least one block")
+
+    for i in range(len(blocks[0])):
+        temp_list = ""
+        for block in blocks:
+            if len(block) > i:
+                temp_list += block[i]
+
+        transposed_blocks.append(temp_list)
+
+    return transposed_blocks
 
 
 
