@@ -17,15 +17,7 @@ def find_char(sequence):
 
         temp_h3 = xor_hex(h1,h2)
 
-        ranking[char] = {}
-        for char_in_seq in binascii.a2b_hex(temp_h3):
-            if not ranking[char].get(char_in_seq):
-                ranking[char][char_in_seq] = 0
-
-            ranking[char][char_in_seq] += 1
-
-
-
+        ranking[char] = build_char_dictionary(binascii.a2b_hex(temp_h3))
 
     temp_i = 0
     temp_rank = 0
@@ -36,6 +28,18 @@ def find_char(sequence):
             temp_i = i
 
     return int2hexbyte(temp_i)
+
+
+
+def build_char_dictionary(string1):
+    ranking = {}
+    for char_in_seq in string1:
+        if not ranking.get(char_in_seq):
+            ranking[char_in_seq] = 0
+
+        ranking[char_in_seq] += 1
+
+    return ranking
 
 
 
@@ -84,11 +88,14 @@ def rank_list(ranking_dict):
     return rank
 
 
-def find_xor_char(sequence):
+def find_xor_sequence(sequence):
     return xor_hex(binascii.a2b_hex(sequence), find_char(sequence))
+
+
+def niceify_find_xor_sequence(seq):
+    return binascii.a2b_hex(find_xor_sequence(seq))
 
 
 if __name__ == '__main__':
     print(find_char('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'))
-    print(binascii.a2b_hex(find_xor_char('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736')))
-
+    print(niceify_find_xor_sequence('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'))
