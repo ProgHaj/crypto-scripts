@@ -25,8 +25,8 @@ def xor(s1, s2):
     Returns a xor'd hexadecimal represented bytes.
 
     Challenge 2 of Set1 cryptopals"""
-    h1 = binascii.a2b_hex(s1)
-    h2 = binascii.a2b_hex(s2)
+    h1 = s1.encohe()
+    h2 = s2.encode()
     return xor_hex(h1,h2)
 
 
@@ -37,10 +37,13 @@ def xor_hex(h1,h2):
     """
 
     h3 = bytes()
-    if not len(h1) == len(h2) and len(h2) == 1:
-        # If h2 == 1, should add if it is not one byte as well..
+    if len(h2) == 1:
         for byte1 in h1:
             temp = b"%x" % (byte1 ^ h2[0])
+            h3 +=  temp.rjust(2, b'0')
+    elif not len(h1) == len(h2):
+        for i, byte1 in enumerate(h1):
+            temp = b"%x" % (byte1 ^ h2[i % len(h2)])
             h3 +=  temp.rjust(2, b'0')
     else:
         for byte1, byte2 in zip(h1, h2):
@@ -62,3 +65,4 @@ def bytes2bitsstring(h1):
 def int2hexbyte(i):
     temp_hex = "%x" % i
     return binascii.a2b_hex(temp_hex.rjust(len(temp_hex) + (len(temp_hex) % 2),'0'))
+
