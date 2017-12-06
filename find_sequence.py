@@ -73,7 +73,7 @@ def find_xor_char(sequence):
     return xor_hex(binascii.a2b_hex(sequence), find_char(sequence))
 
 
-if __name__ == '__main_':
+if __name__ == '__main__':
     print(find_char('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'))
     print(binascii.a2b_hex(find_xor_char('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736')))
 
