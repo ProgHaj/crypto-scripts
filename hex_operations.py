@@ -37,8 +37,15 @@ def xor_hex(h1,h2):
     """
 
     h3 = bytes()
-    for byte1, byte2 in zip(h1, h2):
-        h3 += b"%x" % (byte1 ^ byte2)
+    if not len(h1) == len(h2) and len(h2) == 1:
+        # If h2 == 1, should add if it is not one byte as well..
+        for byte1 in h1:
+            temp = b"%x" % (byte1 ^ h2[0])
+            h3 +=  temp.rjust(2, b'0')
+    else:
+        for byte1, byte2 in zip(h1, h2):
+            temp = b"%x" % (byte1 ^ byte2)
+            h3 +=  temp.rjust(2, b'0')
 
     return h3
 
