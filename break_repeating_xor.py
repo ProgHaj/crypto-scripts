@@ -2,6 +2,8 @@ import argparse
 import hex_operations as ho
 import repeating_xor
 import re
+import find_sequence as fs
+import binascii as bi
 
 def setup():
     parser = argparse.ArgumentParser(description='This program will break'
@@ -36,13 +38,19 @@ def hamming_distance(str1, str2):
 
     return different
 
+
 def steps(args):
+    """Performs the steps for breaking the specified file containing a xor
+    encrypted text which after is b64'd. Returns the key."""
     with open(args.file, 'r') as seq_file:
-        red_file = seq_file.read().strip()
+        red_file_b64 = seq_file.read().strip()
+        red_file = ho.b64_hex(red_file_b64)
+        red_file = red_file.decode()
 
         keysize = args.KEYSIZE
         list_of_distances = []
 
+        # Find best keysize
         for i in range(2,keysize):
             first_size  = red_file[0:i]
             second_size = red_file[i:i*2]
@@ -58,17 +66,33 @@ def steps(args):
         # makes list_of_distances[0] be the smallest distance-key pair, and [1] the
         # next best etc. the list contains entries with [distance, key]
 
-        text_blocks = break_text_into_blocks(red_file, list_of_distances[0][1])
-        print(transpose_blocks(text_blocks))
+        text_blocks = break_text_into_blocks(red_file, sorted_list[1][1])
+        transposed_blocks = transpose_blocks(text_blocks)
+
+        key = b""
+        for block in transposed_blocks:
+            print(len(block))
+            key += fs.find_char(block.encode())
+
+        xor = ho.xor_hex(bi.a2b_hex(red_file), key)
+        print(bi.a2b_hex(xor))
+
+
+        return key
 
 
 
 
 
 def break_text_into_blocks(text, keysize):
+    """Returns a list with the 'text' seperated by keysize steps. so "hello",
+    3 would return ["hell", "o"]"""
     return re.findall(".{1,%s}" % keysize, text)
 
 def transpose_blocks(blocks):
+    """Transpose blocks inside 'blocks'. This means that if we have 2 block
+    [1,2] and [3,4] we will get [1,3] and [2,4]. If length is not the same
+    (might be the case for the list block), then thoose aren't included."""
     transposed_blocks = []
 
     if len(blocks) == 0:
@@ -88,5 +112,5 @@ def transpose_blocks(blocks):
 
 if __name__ == '__main__':
     args = setup()
-    steps(args)
-
+    key = steps(args)
+    print(key)
