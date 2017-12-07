@@ -4,7 +4,7 @@ from hex_operations import xor
 from hex_operations import int2hexbyte
 import matplotlib.pyplot as plt
 
-def find_char(sequence):
+def find_char(sequence, _plot=False):
     h1 = binascii.a2b_hex(sequence)
 
     # Character? not letter? hmm. Should be this
@@ -23,10 +23,12 @@ def find_char(sequence):
     temp_i = 0
     temp_rank = 0
 
-    for i, rank in enumerate(rank_list(ranking)):
+    for i, rank in enumerate(rank_list(ranking, _plot)):
         if rank > temp_rank:
             temp_rank = rank
             temp_i = i
+
+    temp_h3 = xor_hex(h1,int2hexbyte(temp_i))
 
     return int2hexbyte(temp_i)
 
@@ -52,44 +54,26 @@ def rank_list(ranking_dict, _plot=False):
     rank = []
     normalize = len(ranking_dict.items())
 
+    letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+    ' ', '\'', '.']
+    values  = ['8.167','1.492','2.782','4.253','12.702','2.228','2.015','6.094',
+               '6.966','0.153','0.772','4.025','2.406','6.749', '7.507','1.929',
+               '0.095','5.987','6.327','9.056','2.758','0.978','2.360','0.150',
+               '1.974','0.074', '16', '8', '5']
+
     for key, value in ranking_dict.items():
         score = 0
-        val_e = value.get(ord('e')) or 0
-        val_t = value.get(ord('t')) or 0
-        val_a = value.get(ord('a')) or 0
-        val_o = value.get(ord('o')) or 0
-        val_i = value.get(ord('i')) or 0
-        val_n = value.get(ord('n')) or 0
+        for i in range(len(letters)):
+            temp   = value.get(ord(letters[i])) or 0
+            score += temp * float(values[i])
 
-        val_s = value.get(ord('s')) or 0
-        val_h = value.get(ord('h')) or 0
-        val_r = value.get(ord('r')) or 0
-        val_d = value.get(ord('d')) or 0
-        val_l = value.get(ord('l')) or 0
-        val_u = value.get(ord('u')) or 0
 
-        values = [[val_e, 0.12],
-                  [val_t, 0.91],
-                  [val_a, 0.82],
-                  [val_o, 0.75],
-                  [val_i, 0.7],
-                  [val_n, 0.67],
-
-                  [val_s, 0.63],
-                  [val_h, 0.61],
-                  [val_r, 0.6],
-                  [val_d, 0.43],
-                  [val_l, 0.4],
-                  [val_u, 0.28]]
-
-        for val in values:
-            score += val[0] * val[1]
-
-        rank.append(score/normalize)
+        rank.append(score/(100*normalize))
 
     if _plot:
         plot(rank)
 
+    print(rank)
 
     return rank
 
