@@ -25,9 +25,7 @@ def setup():
     return parser.parse_args()
 
 
-def hamming_distance(str1, str2):
-    bin_str1 = str1.encode()
-    bin_str2 = str2.encode()
+def hamming_distance(bin_str1, bin_str2):
     bits1 = ho.bytes2bitsstring(bin_str1)
     bits2 = ho.bytes2bitsstring(bin_str2)
 
@@ -43,39 +41,60 @@ def steps(args):
     """Performs the steps for breaking the specified file containing a xor
     encrypted text which after is b64'd. Returns the key."""
     with open(args.file, 'r') as seq_file:
-        red_file_b64 = seq_file.read().strip()
+        red_file_b64 = seq_file.read()
         red_file = ho.b64_hex(red_file_b64)
-        red_file = red_file.decode()
 
         keysize = args.KEYSIZE
         list_of_distances = []
 
         # Find best keysize
-        for i in range(2,keysize):
+        print(red_file)
+        red_file = bi.a2b_hex(red_file)
+        red_file = bi.a2b_hex(red_file)
+        for i in range(2,keysize, 2):
             first_size  = red_file[0:i]
             second_size = red_file[i:i*2]
             third_size  = red_file[i*2:i*3]
             fourth_size = red_file[i*3:i*4]
+
+
             distance1 = hamming_distance(first_size, second_size)
-            distance2 = hamming_distance(third_size, fourth_size)
-            normalized_distance = (distance1 + distance2)/(i*2)  # more accurate
+            distance2 = hamming_distance(first_size, third_size)
+            distance3 = hamming_distance(first_size, fourth_size)
+            distance4 = hamming_distance(second_size, third_size)
+            distance5 = hamming_distance(second_size, fourth_size)
+            distance6 = hamming_distance(third_size, fourth_size)
+
+            normalized_distance = (distance1 + distance2 + distance3 +
+                                   distance4 + distance5 + distance6)/(6*i)  # more accurate
 
             list_of_distances.append([normalized_distance, i])
 
+
+        print(red_file)
         sorted_list = sorted(list_of_distances, key=lambda x: x[0])
         # makes list_of_distances[0] be the smallest distance-key pair, and [1] the
         # next best etc. the list contains entries with [distance, key]
 
-        text_blocks = break_text_into_blocks(red_file, sorted_list[1][1])
+        print(sorted_list[0][1])
+
+        text_blocks = break_text_into_blocks(red_file, sorted_list[0][1])
+        print(sorted_list[0:10])
+        print(text_blocks)
         transposed_blocks = transpose_blocks(text_blocks)
+        print(transposed_blocks)
+        #red_file = bi.a2b_hex(red_file.encode())
 
         key = b""
         for block in transposed_blocks:
-            print(len(block))
-            key += fs.find_char(block.encode())
+            key += fs.find_char_hex(block, _plot=True)
 
-        xor = ho.xor_hex(bi.a2b_hex(red_file), key)
+        #red_file = bi.b2a_hex(red_file)
+        xor = ho.xor_hex(red_file, key)
+        #xor = ho.xor_string(red_file, key.decode())
         print(bi.a2b_hex(xor))
+        #print(sorted_list[:30])
+
 
 
         return key
@@ -87,7 +106,8 @@ def steps(args):
 def break_text_into_blocks(text, keysize):
     """Returns a list with the 'text' seperated by keysize steps. so "hello",
     3 would return ["hell", "o"]"""
-    return re.findall(".{1,%s}" % keysize, text)
+    return re.findall(b".{1,%i}" % keysize, text)
+
 
 def transpose_blocks(blocks):
     """Transpose blocks inside 'blocks'. This means that if we have 2 block
@@ -98,11 +118,11 @@ def transpose_blocks(blocks):
     if len(blocks) == 0:
         raise Exception("Blocks need to have at least one block")
 
-    for i in range(len(blocks[0])):
-        temp_list = ""
+    for i in range(0,len(blocks[0])):
+        temp_list = b""
         for block in blocks:
             if len(block) > i:
-                temp_list += block[i]
+                temp_list += ho.int2hexbyte(block[i])
 
         transposed_blocks.append(temp_list)
 

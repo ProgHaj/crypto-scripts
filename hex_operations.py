@@ -17,14 +17,15 @@ def hex_b64(s1):
 
     Challenge 1 of Set1 Cryptopals"""
     h1 = binascii.a2b_hex(s1)
-    return binascii.b2a_base64(h1).strip()
+    return binascii.b2a_base64(h1, newline=False)
 
 def b64_hex(s1):
     """Converts from (str)hex to (str)base64
 
     Challenge 1 of Set1 Cryptopals"""
+
     h1 = binascii.a2b_base64(s1)
-    return binascii.b2a_hex(h1).strip()
+    return binascii.b2a_hex(h1)
 
 def xor(s1, s2):
     """ Takes string s1 and s2 which are strings containing hexadecimals.

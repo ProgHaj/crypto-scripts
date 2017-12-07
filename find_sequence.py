@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 
 def find_char(sequence, _plot=False):
     h1 = binascii.a2b_hex(sequence)
+    return find_char_hex(h1, _plot)
+
+def find_char_hex(h1, _plot=False):
 
     # Character? not letter? hmm. Should be this
 
@@ -27,6 +30,11 @@ def find_char(sequence, _plot=False):
         if rank > temp_rank:
             temp_rank = rank
             temp_i = i
+
+    #rank = rank_list(ranking, _plot)
+    #scores = [[int2hexbyte(char), score] for char, score in enumerate(rank)]
+    #scores_sorted =sorted(scores, key=lambda x: x[1], reverse=True)
+    ### TO BE ADDED IF I NEED THE SECOND BEST and so on.
 
     temp_h3 = xor_hex(h1,int2hexbyte(temp_i))
 
@@ -54,12 +62,11 @@ def rank_list(ranking_dict, _plot=False):
     rank = []
     normalize = len(ranking_dict.items())
 
-    letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-    ' ', '\'', '.']
+    letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', ' ']
     values  = ['8.167','1.492','2.782','4.253','12.702','2.228','2.015','6.094',
                '6.966','0.153','0.772','4.025','2.406','6.749', '7.507','1.929',
                '0.095','5.987','6.327','9.056','2.758','0.978','2.360','0.150',
-               '1.974','0.074', '16', '8', '5']
+               '1.974','0.074', '13']
 
     for key, value in ranking_dict.items():
         score = 0
@@ -68,19 +75,19 @@ def rank_list(ranking_dict, _plot=False):
             score += temp * float(values[i])
 
 
-        rank.append(score/(100*normalize))
+
+        rank.append(score)
 
     if _plot:
         plot(rank)
 
-    print(rank)
 
     return rank
 
 
 def plot(result):
     plt.plot(range(1,len(result) + 1), result, 'ro')
-    plt.axis([0, len(result), 0, 1])
+    plt.axis([0, len(result), 0, max(result)])
     plt.ylabel('Score')
     plt.show()
 
