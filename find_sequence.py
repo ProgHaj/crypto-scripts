@@ -2,10 +2,10 @@ import binascii
 from hex_operations import xor_hex
 from hex_operations import xor
 from hex_operations import int2hexbyte
+import matplotlib.pyplot as plt
 
 def find_char(sequence):
-    seq = sequence + ("0" * (len(sequence) % 2))
-    h1 = binascii.a2b_hex(seq)
+    h1 = binascii.a2b_hex(sequence)
 
     # Character? not letter? hmm. Should be this
 
@@ -44,12 +44,13 @@ def build_char_dictionary(string1):
 
 
 
-def rank_list(ranking_dict):
+def rank_list(ranking_dict, _plot=False):
     """apply some ranking"""
 
     # TODO: temporary fix, please make mor generalize
 
     rank = []
+    normalize = len(ranking_dict.items())
 
     for key, value in ranking_dict.items():
         score = 0
@@ -84,9 +85,21 @@ def rank_list(ranking_dict):
         for val in values:
             score += val[0] * val[1]
 
-        rank.append(score)
+        rank.append(score/normalize)
+
+    if _plot:
+        plot(rank)
+
 
     return rank
+
+
+def plot(result):
+    plt.plot(range(1,len(result) + 1), result, 'ro')
+    plt.axis([0, len(result), 0, 1])
+    plt.ylabel('Score')
+    plt.show()
+
 
 
 def find_xor_sequence(sequence):
