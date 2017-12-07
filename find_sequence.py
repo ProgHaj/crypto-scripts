@@ -4,7 +4,8 @@ from hex_operations import xor
 from hex_operations import int2hexbyte
 
 def find_char(sequence):
-    h1 = binascii.a2b_hex(sequence)
+    seq = sequence + ("0" * (len(sequence) % 2))
+    h1 = binascii.a2b_hex(seq)
 
     # Character? not letter? hmm. Should be this
 
