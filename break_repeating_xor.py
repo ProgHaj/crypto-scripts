@@ -50,6 +50,7 @@ def steps(args):
         # Find best keysize
         print(red_file)
         red_file = bi.a2b_hex(red_file)
+        print(red_file)
         red_file = bi.a2b_hex(red_file)
         for i in range(2,keysize, 2):
             first_size  = red_file[0:i]
@@ -71,7 +72,6 @@ def steps(args):
             list_of_distances.append([normalized_distance, i])
 
 
-        print(red_file)
         sorted_list = sorted(list_of_distances, key=lambda x: x[0])
         # makes list_of_distances[0] be the smallest distance-key pair, and [1] the
         # next best etc. the list contains entries with [distance, key]
@@ -79,28 +79,28 @@ def steps(args):
         print(sorted_list[0][1])
 
         text_blocks = break_text_into_blocks(red_file, sorted_list[0][1])
-        print(sorted_list[0:10])
+        print("text_blocks:")
         print(text_blocks)
         transposed_blocks = transpose_blocks(text_blocks)
+        print("transposed_blocks:")
         print(transposed_blocks)
         #red_file = bi.a2b_hex(red_file.encode())
 
         key = b""
         for block in transposed_blocks:
-            key += fs.find_char_hex(block, _plot=True)
+            key += fs.find_char_hex(block)[0][0]
 
         #red_file = bi.b2a_hex(red_file)
+        print(red_file)
         xor = ho.xor_hex(red_file, key)
         #xor = ho.xor_string(red_file, key.decode())
         print(bi.a2b_hex(xor))
+        print(sorted_list[0:10])
         #print(sorted_list[:30])
 
 
 
         return key
-
-
-
 
 
 def break_text_into_blocks(text, keysize):
@@ -122,9 +122,15 @@ def transpose_blocks(blocks):
         temp_list = b""
         for block in blocks:
             if len(block) > i:
-                temp_list += ho.int2hexbyte(block[i])
+                byte = b"%x" % block[i]
+                byte = byte.rjust(2, b'0')
+                temp_list += byte
 
-        transposed_blocks.append(temp_list)
+        if temp_list:
+            #temp_list = "%x" % int(temp_list,2)
+            #temp_list = temp_list.rjust(len(temp_list) + (len(temp_list) % 2), b'0')
+            temp_list_hex = bi.unhexlify(temp_list)
+            transposed_blocks.append(temp_list_hex)
 
     return transposed_blocks
 
