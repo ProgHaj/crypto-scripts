@@ -5,6 +5,9 @@ import re
 import find_sequence as fs
 import binascii as bi
 
+
+DEBUG = 0
+
 def setup():
     parser = argparse.ArgumentParser(description='This program will break'
                                      ' a base64 and repeated xor file using'
@@ -30,8 +33,6 @@ def hamming_distance(bin_str1, bin_str2):
     bits2 = ho.bytes2bitsstring(bin_str2)
 
     different = 0
-    print(bits1)
-    print(bits2)
     for i in range(len(bits1)):
         if bits1[i] != bits2[i]:
             different += 1
@@ -41,7 +42,7 @@ def hamming_distance(bin_str1, bin_str2):
 
 def steps(args):
     """Performs the steps for breaking the specified file containing a xor
-    encrypted text which after is b64'd. Returns the key."""
+    encrypted text which after is b64'd. Returns top 3 found keys and entries."""
     with open(args.file, 'r') as seq_file:
         red_file_b64 = seq_file.read()
         red_file = ho.string_b642hex(red_file_b64)
@@ -50,75 +51,101 @@ def steps(args):
         list_of_distances = []
 
         # Find best keysize
-        print("hmm")
-        print(red_file)
-        red_file = bi.a2b_hex(red_file)
-        print(red_file)
-        red_file = bi.a2b_hex(red_file)
-        print(red_file)
-        print("test")
+        if DEBUG: print(red_file)
+
+        print("hexify")
+
+        try:
+            while True:
+                red_file = bi.a2b_hex(red_file)
+        except:
+            pass
+
+        if DEBUG: print(red_file)
 
         if keysize*4 > len(red_file):
             raise Exception("Key length must be at most a fourth of the file"
                             " length -- otherwise values needs to be tweaked.")
 
-        for i in range(2,keysize):
-            first_size  = red_file[0:i]
-            second_size = red_file[i:i*2]
-            third_size  = red_file[i*2:i*3]
-            fourth_size = red_file[i*3:i*4]
+        print("finding keysize", end="   ")
+
+        for i in range(1,keysize):
+            list_of_sizes = []
+            temp_distances = []
+            for j in range(1, 4): # change the end depending on text
+                size1 = red_file[i*(j-1):i*j]
+                for size2 in list_of_sizes:
+                    temp_distances.append(hamming_distance(size2, size1))
+
+                list_of_sizes.append(size1)
 
 
-            distance1 = hamming_distance(first_size, second_size)
-            distance2 = hamming_distance(first_size, third_size)
-            distance3 = hamming_distance(first_size, fourth_size)
-            distance4 = hamming_distance(second_size, third_size)
-            distance5 = hamming_distance(second_size, fourth_size)
-            distance6 = hamming_distance(third_size, fourth_size)
+            normalized_distance = 0
+            for distance in temp_distances:
+                normalized_distance += distance
 
-            normalized_distance = (distance1 + distance2 + distance3 +
-                                   distance4 + distance5 + distance6)/(6*i)  # more accurate
+            normalized_distance = normalized_distance/(len(temp_distances) * i)
 
-            list_of_distances.append([normalized_distance, i])
 
+            list_of_distances.append([normalized_distance, i,
+                                      len(temp_distances)])
+
+
+        print("DONE")
 
         sorted_list = sorted(list_of_distances, key=lambda x: x[0])
         # makes list_of_distances[0] be the smallest distance-key pair, and [1] the
         # next best etc. the list contains entries with [distance, key]
 
-        print(sorted_list[0][1])
 
+        top_keys = [x[1] for x in sorted_list[0:3]]
 
-        # Chose the key with the lowest keysize as our used key of the top 3
-        # entries IF it is divisible by the highest key.
-        #if  TODO
+        print("find best key for top 3 keysizes")
 
-        chosen_length= sorted_list[0][1]
+        texts = {}
+        for chosen_length in top_keys:
+            print("keysize: ", chosen_length)
 
-        text_blocks = break_text_into_blocks(red_file, chosen_length)
-        print("text_blocks:")
-        print(text_blocks)
-        transposed_blocks = transpose_blocks(text_blocks)
-        print("transposed_blocks:")
-        print(transposed_blocks)
-        #red_file = bi.a2b_hex(red_file.encode())
+            print("breaking text into blocks of keysize...")
+            text_blocks = break_text_into_blocks(red_file, chosen_length)
 
-        key = b""
-        for block in transposed_blocks:
-            key += fs.find_char_hex(block)[0][0]
+            if DEBUG: print("text_blocks:")
+            if DEBUG: print(text_blocks)
+            print("transposing blocks...")
+            transposed_blocks = transpose_blocks(text_blocks)
+            if DEBUG: print("transposed_blocks:")
+            if DEBUG: print(transposed_blocks)
 
-        print(red_file)
-        xor = ho.xor_hex(red_file, key)
-        print(bi.a2b_hex(xor))
-        print(sorted_list[0:10])
+            print("finding key...")
+            key = b""
+            score = 0
+            close_candidates = b""
 
-        return key
+            print("b'", end="")
+            for block in transposed_blocks:
+                found = fs.find_char_hex(block)
+                key += found[0][0]
+                score += found[0][1]
+                close_candidates += found[1][0]
+                print(found[0][0].decode(), end="")
+
+            print("'")
+
+            if DEBUG: print(red_file)
+            print("xoring key and file...")
+            xor = ho.xor_hex(red_file, key)
+            printable = bi.a2b_hex(xor)
+            if DEBUG: print(printable)
+
+            texts[chosen_length] = [printable, key, score, close_candidates]
+
+        return texts
 
 
 def break_text_into_blocks(text, keysize):
     """Returns a list with the 'text' seperated by keysize steps. so "hello",
     3 would return ["hell", "o"]"""
-    return re.findall(b".{1,%i}" % keysize, text)
+    return re.findall(b".{1,%i}" % keysize, text, re.MULTILINE|re.DOTALL)
 
 
 def transpose_blocks(blocks):
@@ -145,8 +172,25 @@ def transpose_blocks(blocks):
     return transposed_blocks
 
 
+def get_best_entry(found_entries):
+    entries = [[val[1], val[0], val[2]] for key, val in found_entries.items()]
+    sorted_entries = sorted(entries, key=lambda x: x[2], reverse=True)
+    return sorted_entries[0]
+
+
+def print_entries(found_entries):
+    print("Found entries:")
+    for key,val in found_entries.items():
+        print(key, val[1], val[2], ",    close candidate key: ", val[3])
+        print(val[0])
+        print()
+
 
 if __name__ == '__main__':
     args = setup()
-    key = steps(args)
-    print(key)
+    found_entries = steps(args)
+    print()
+    entry = get_best_entry(found_entries)
+    print("Key: ", entry[0])
+    print()
+    print("Text: ", entry[1].decode())

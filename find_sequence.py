@@ -4,13 +4,24 @@ from hex_operations import xor
 from hex_operations import int2hexbyte
 import matplotlib.pyplot as plt
 
+DEBUG = 0
+
 letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
-           'q','r','s','t','u','v','w','x','y','z', ' ', '.', ',']
+           'q','r','s','t','u','v','w','x','y','z']
+letters += [x.upper() for x in letters]
+
+special_letters = [' ', '.', ',']
+letters += special_letters
 
 values  = ['8.167','1.492','2.782','4.253','12.702','2.228','2.015','6.094',
            '6.966','0.153','0.772','4.025','2.406','6.749', '7.507','1.929',
            '0.095','5.987','6.327','9.056','2.758','0.978','2.360','0.150',
-           '1.974','0.074', '13', '2', '2']
+           '1.974','0.074']
+
+special_values = ['13', '2', '2']
+
+values += [x.upper() for x in values]
+values += special_values
 
 def find_char(sequence, _plot=False):
     h1 = binascii.a2b_hex(sequence)
@@ -26,6 +37,7 @@ def find_char_hex(h1, _plot=False):
         h2 = int2hexbyte(char)
 
         temp_h3 = xor_hex(h1,h2)
+
         ranking[char] = build_char_dictionary(binascii.a2b_hex(temp_h3))
 
     temp_i = 0
@@ -39,6 +51,7 @@ def find_char_hex(h1, _plot=False):
     rank = rank_list(ranking, _plot)
     scores = [[int2hexbyte(char), score] for char, score in enumerate(rank)]
     scores_sorted = sorted(scores, key=lambda x: x[1], reverse=True)
+    if DEBUG: print("scores", scores_sorted[0:5])
 
     return scores_sorted
 
@@ -53,7 +66,7 @@ def build_char_dictionary(string1):
             ranking[char_in_seq] += 1
 
         else: # TODO Add -1 to everything
-            if not ranking.get(char_in_seq):
+            if not ranking.get(-1):
                 ranking[-1] = 0
 
             ranking[-1] += 1
@@ -83,7 +96,7 @@ def rank_list(ranking_dict, _plot=False):
             score += temp * float(values[i])
 
         temp = value.get(-1) or 0
-        score -= temp * 10
+        score -= temp
 
         rank.append(score)
 

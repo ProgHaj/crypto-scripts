@@ -58,11 +58,7 @@ def xor_hex(h1,h2):
     """
 
     h3 = bytes()
-    if len(h2) == 1:
-        for byte1 in h1:
-            temp = b"%x" % (byte1 ^ h2[0])
-            h3 +=  temp.rjust(2, b'0')
-    elif not len(h1) == len(h2):
+    if not len(h1) == len(h2):
         for i, byte1 in enumerate(h1):
             temp = b"%x" % (byte1 ^ h2[i % len(h2)])
             h3 +=  temp.rjust(2, b'0')
