@@ -82,7 +82,8 @@ def rank_list(ranking_dict, _plot=False):
             temp   = value.get(ord(letters[i])) or 0
             score += temp * float(values[i])
 
-        score -= value.get(-1) or 0
+        temp = value.get(-1) or 0
+        score -= temp * 10
 
         rank.append(score)
 

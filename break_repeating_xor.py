@@ -88,7 +88,14 @@ def steps(args):
 
         print(sorted_list[0][1])
 
-        text_blocks = break_text_into_blocks(red_file, sorted_list[0][1])
+
+        # Chose the key with the lowest keysize as our used key of the top 3
+        # entries IF it is divisible by the highest key.
+        #if  TODO
+
+        chosen_length= sorted_list[0][1]
+
+        text_blocks = break_text_into_blocks(red_file, chosen_length)
         print("text_blocks:")
         print(text_blocks)
         transposed_blocks = transpose_blocks(text_blocks)
