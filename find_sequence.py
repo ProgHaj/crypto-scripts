@@ -4,6 +4,13 @@ from hex_operations import xor
 from hex_operations import int2hexbyte
 import matplotlib.pyplot as plt
 
+letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
+           'q','r','s','t','u','v','w','x','y','z', ' ', '.', ',']
+
+values  = ['8.167','1.492','2.782','4.253','12.702','2.228','2.015','6.094',
+           '6.966','0.153','0.772','4.025','2.406','6.749', '7.507','1.929',
+           '0.095','5.987','6.327','9.056','2.758','0.978','2.360','0.150',
+           '1.974','0.074', '13', '2', '2']
 
 def find_char(sequence, _plot=False):
     h1 = binascii.a2b_hex(sequence)
@@ -11,18 +18,14 @@ def find_char(sequence, _plot=False):
 
 
 def find_char_hex(h1, _plot=False):
-
-    # Character? not letter? hmm. Should be this
-
     ranking = {}
-    amount_of_bytes = 1
+    amount_of_bytes = 1  # for finding more bytes -- not functional atm
 
 
     for char in range(amount_of_bytes * 256):
         h2 = int2hexbyte(char)
 
         temp_h3 = xor_hex(h1,h2)
-
         ranking[char] = build_char_dictionary(binascii.a2b_hex(temp_h3))
 
     temp_i = 0
@@ -43,10 +46,17 @@ def find_char_hex(h1, _plot=False):
 def build_char_dictionary(string1):
     ranking = {}
     for char_in_seq in string1:
-        if not ranking.get(char_in_seq):
-            ranking[char_in_seq] = 0
+        if chr(char_in_seq) in letters:
+            if not ranking.get(char_in_seq):
+                ranking[char_in_seq] = 0
 
-        ranking[char_in_seq] += 1
+            ranking[char_in_seq] += 1
+
+        else: # TODO Add -1 to everything
+            if not ranking.get(char_in_seq):
+                ranking[-1] = 0
+
+            ranking[-1] += 1
 
     return ranking
 
@@ -60,22 +70,19 @@ def rank_list(ranking_dict, _plot=False):
     rank = []
     normalize = len(ranking_dict.items())
 
-    letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-     ' ', '.', ',']
-    values  = ['8.167','1.492','2.782','4.253','12.702','2.228','2.015','6.094',
-               '6.966','0.153','0.772','4.025','2.406','6.749', '7.507','1.929',
-               '0.095','5.987','6.327','9.056','2.758','0.978','2.360','0.150',
-               '1.974','0.074', '13', '2', '2']
+
 
 
     for key, value in ranking_dict.items():
+        if key == -1:
+            score -= ranking_dict[-1]
         score = 0
+
         for i in range(len(letters)):
             temp   = value.get(ord(letters[i])) or 0
             score += temp * float(values[i])
 
-
-
+        score -= value.get(-1) or 0
 
         rank.append(score)
 

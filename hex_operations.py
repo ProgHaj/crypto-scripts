@@ -12,18 +12,23 @@ for pretty-printing."""
 
 import binascii
 
-def hex_b64(s1):
-    """Converts from (str)hex to (str)base64
-
-    Challenge 1 of Set1 Cryptopals"""
+def string_hex2b64(s1):
+    """Converts from (str)hex to base64"""
     h1 = binascii.a2b_hex(s1)
     return binascii.b2a_base64(h1, newline=False)
 
-def b64_hex(s1):
-    """Converts from (str)hex to (str)base64
 
-    Challenge 1 of Set1 Cryptopals"""
+def string_b642hex(s1):
+    """Converts from (str)base64 to hex"""
+    h1 = binascii.a2b_base64(s1)
+    return binascii.b2a_hex(h1)
 
+def hex2b64(h1):
+    """Converts from hex to base64"""
+    return binascii.b2a_base64(h1, newline=False)
+
+def b642hex(h1):
+    """Converts from hex to base64"""
     h1 = binascii.a2b_base64(s1)
     return binascii.b2a_hex(h1)
 

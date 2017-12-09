@@ -30,6 +30,8 @@ def hamming_distance(bin_str1, bin_str2):
     bits2 = ho.bytes2bitsstring(bin_str2)
 
     different = 0
+    print(bits1)
+    print(bits2)
     for i in range(len(bits1)):
         if bits1[i] != bits2[i]:
             different += 1
@@ -42,17 +44,25 @@ def steps(args):
     encrypted text which after is b64'd. Returns the key."""
     with open(args.file, 'r') as seq_file:
         red_file_b64 = seq_file.read()
-        red_file = ho.b64_hex(red_file_b64)
+        red_file = ho.string_b642hex(red_file_b64)
 
         keysize = args.KEYSIZE
         list_of_distances = []
 
         # Find best keysize
+        print("hmm")
         print(red_file)
         red_file = bi.a2b_hex(red_file)
         print(red_file)
         red_file = bi.a2b_hex(red_file)
-        for i in range(2,keysize, 2):
+        print(red_file)
+        print("test")
+
+        if keysize*4 > len(red_file):
+            raise Exception("Key length must be at most a fourth of the file"
+                            " length -- otherwise values needs to be tweaked.")
+
+        for i in range(2,keysize):
             first_size  = red_file[0:i]
             second_size = red_file[i:i*2]
             third_size  = red_file[i*2:i*3]
@@ -90,15 +100,10 @@ def steps(args):
         for block in transposed_blocks:
             key += fs.find_char_hex(block)[0][0]
 
-        #red_file = bi.b2a_hex(red_file)
         print(red_file)
         xor = ho.xor_hex(red_file, key)
-        #xor = ho.xor_string(red_file, key.decode())
         print(bi.a2b_hex(xor))
         print(sorted_list[0:10])
-        #print(sorted_list[:30])
-
-
 
         return key
 
@@ -127,8 +132,6 @@ def transpose_blocks(blocks):
                 temp_list += byte
 
         if temp_list:
-            #temp_list = "%x" % int(temp_list,2)
-            #temp_list = temp_list.rjust(len(temp_list) + (len(temp_list) % 2), b'0')
             temp_list_hex = bi.unhexlify(temp_list)
             transposed_blocks.append(temp_list_hex)
 
