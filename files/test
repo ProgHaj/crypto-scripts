@@ -1,0 +1,6 @@
+dGhpcyBpcyBhIHRlc3Q=
+0b3637272a2b2e63622c2e243a27243a27243a27243a27
+
+
+~/P/Cryptopals master ✗ python repeating_xor.py --to_be_xored "Burning 'em with great fire and furious anger, which is quite powerful I would say." --xor_val "ICEr"
+b'0b36371c202d22526e2628523e2a311a692437172837651420312052282d21522f36371b26363652282d22173b6f6505212a261a692a365238362c062c63351d3e2637143c2f653b69342a0725276501283a6b'
