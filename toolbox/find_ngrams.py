@@ -184,6 +184,15 @@ def swap_frame(frames, ):
     pass
 
 
+def print_cesar(text):
+    l_dict = {letters[i-1]: letters[i] for i in range(len(letters))}
+    for i in range(26):
+        new_text = ""
+        for letter in text:
+            new_text += l_dict[letter]
+
+        text = new_text
+        print(text)
 
 def find_ngrams(text, n=1):
     gram_dict = {}
